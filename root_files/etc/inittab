@@ -1,0 +1,2 @@
+::sysinit:/rc
+::askfirst:-/bin/sh

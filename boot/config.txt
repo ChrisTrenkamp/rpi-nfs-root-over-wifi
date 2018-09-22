@@ -1,0 +1,2 @@
+kernel=rpi-kernel
+initramfs init.cpio.gz followkernel

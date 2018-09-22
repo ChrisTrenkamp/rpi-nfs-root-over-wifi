@@ -1,0 +1,33 @@
+emerge crossdev
+crossdev -S -t armv6j-hardfloat-linux-gnueabi
+
+mkdir /usr/armv6j-hardfloat-linux-gnueabi/boot
+
+cat >> /usr/armv6j-hardfloat-linux-gnueabi/etc/portage/package.use << EOF
+net-wireless/wpa_supplicant ssl
+net-misc/dhcpcd -udev
+EOF
+
+armv6j-hardfloat-linux-gnueabi-emerge -av busybox iw linux-firmware wpa_supplicant dhcpcd
+
+mkdir kernel
+cd kernel
+
+git clone https://github.com/raspberrypi/linux rpi
+git clone --depth 1 https://github.com/raspberrypi/firmware -b 1.20180817
+
+export \
+	ARCH=arm \
+	CROSS_COMPILE=armv6j-hardfloat-linux-gnueabi- \
+	INSTALL_PATH=/usr/armv6j-hardfloat-linux-gnueabi/boot \
+	INSTALL_MOD_PATH=/usr/armv6j-hardfloat-linux-gnueabi/
+
+cd rpi
+git checkout rpi-4.9.y
+
+make bcmrpi_defconfig
+make -j3
+make modules_install
+cp arch/arm/boot/Image /usr/armv6j-hardfloat-linux-gnueabi/boot/rpi-kernel
+
+wpa_passphrase "wifissid" "wifipass" | grep -v '#' > ramfs/wpa_supplicant.conf

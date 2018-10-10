@@ -2,7 +2,7 @@
 
 for i in $@; do
 	mod="/${i}.ko:"
-	deps=$(grep "$mod" /usr/armv6j-hardfloat-linux-gnueabi/lib/modules/4.9.80+/modules.dep | cut -f2 -d:)
+	deps=$(grep "$mod" /usr/armv7a-hardfloat-linux-gnueabi/lib/modules/4.18.10-v7+/modules.dep | cut -f2 -d:)
 	deps=$(basename -a $deps 2>/dev/null | tac)
 	result="$result $(echo "$deps" | sed 's/.ko//g') $i"
 done

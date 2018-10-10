@@ -1,33 +1,39 @@
 emerge crossdev
-crossdev -S -t armv6j-hardfloat-linux-gnueabi
+crossdev -S -t armv7a-hardfloat-linux-gnueabi
 
-mkdir /usr/armv6j-hardfloat-linux-gnueabi/boot
+mkdir /usr/armv7a-hardfloat-linux-gnueabi/boot
 
-cat >> /usr/armv6j-hardfloat-linux-gnueabi/etc/portage/package.use << EOF
+cat >> /usr/armv7a-hardfloat-linux-gnueabi/etc/portage/package.use << EOF
 net-wireless/wpa_supplicant ssl
 net-misc/dhcpcd -udev
 EOF
 
-armv6j-hardfloat-linux-gnueabi-emerge -av busybox iw linux-firmware wpa_supplicant dhcpcd
+armv7a-hardfloat-linux-gnueabi-emerge -av busybox iw linux-firmware wpa_supplicant dhcpcd
 
 mkdir kernel
 cd kernel
 
 git clone https://github.com/raspberrypi/linux rpi
-git clone --depth 1 https://github.com/raspberrypi/firmware -b 1.20180817
+git clone --depth 1 https://github.com/raspberrypi/firmware -b 1.20180919
+git clone --depth 1 https://github.com/RPi-Distro/firmware-nonfree
 
 export \
 	ARCH=arm \
-	CROSS_COMPILE=armv6j-hardfloat-linux-gnueabi- \
-	INSTALL_PATH=/usr/armv6j-hardfloat-linux-gnueabi/boot \
-	INSTALL_MOD_PATH=/usr/armv6j-hardfloat-linux-gnueabi/
+	CROSS_COMPILE=armv7a-hardfloat-linux-gnueabi- \
+	INSTALL_PATH=/usr/armv7a-hardfloat-linux-gnueabi/boot \
+	INSTALL_MOD_PATH=/usr/armv7a-hardfloat-linux-gnueabi/
+
+mkdir /usr/armv7a-hardfloat-linux-gnueabi/lib/firmware/brcm/ 
+cp firmware-nonfree/brcm/brcmfmac43455-sdio* /usr/armv7a-hardfloat-linux-gnueabi/lib/firmware/brcm/ 
+wget -P /usr/armv7a-hardfloat-linux-gnueabi/lib/firmware/brcm https://raw.githubusercontent.com/RPi-Distro/bluez-firmware/master/broadcom/BCM4345C0.hcd
 
 cd rpi
 git checkout rpi-4.9.y
 
-make bcmrpi_defconfig
+make bcm2709_defconfig
 make -j3
 make modules_install
-cp arch/arm/boot/Image /usr/armv6j-hardfloat-linux-gnueabi/boot/rpi-kernel
+cp arch/arm/boot/Image /usr/armv7a-hardfloat-linux-gnueabi/boot/rpi-kernel
 
 wpa_passphrase "wifissid" "wifipass" | grep -v '#' > ramfs/wpa_supplicant.conf
+cp -r root_files/* /usr/armv7a-hardfloat-linux-gnueabi/

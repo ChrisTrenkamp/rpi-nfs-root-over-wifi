@@ -11,7 +11,7 @@ ip link set dev $dev up
 wpa_supplicant -B -D nl80211 -c /etc/wpa_supplicant.conf -i $dev
 dhcpcd $dev
 
-mount -o nolock 192.168.1.2:/usr/armv6j-hardfloat-linux-gnueabi /new_root
+mount -o nolock 192.168.1.2:/usr/armv7a-hardfloat-linux-gnueabi /new_root
 mount --move /sys /new_root/sys
 mount --move /proc /new_root/proc
 mount --move /dev /new_root/dev
